@@ -1,0 +1,5 @@
+github-desktop-bin
+khotkeys
+lunar-client
+python-pywalfox
+web-installer-url-handler
