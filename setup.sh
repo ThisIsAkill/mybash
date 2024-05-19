@@ -66,7 +66,7 @@ install_zsh_plugin() {
     fi
 }
 
-# Start of the setup script
+## Start of the setup script
 log "Starting the setup script..."
 
 # Detecting distribution
@@ -76,9 +76,20 @@ if [ -f /etc/debian_version ]; then
     log "Updating the system..."
     sudo apt-get update && sudo apt-get upgrade -y
 
-    log "Installing Flatpak..."
     install_if_not_installed flatpak flatpak
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+    # Add Flathub repository
+    if ! flatpak remote-list | grep -q "flathub"; then
+        log "Adding Flathub repository..."
+        if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+            log "Flathub repository added successfully."
+        else
+            log "Failed to add Flathub repository. Check the logs for more details."
+            exit 1
+        fi
+    else
+        log "Flathub repository already added."
+    fi
 
     install_packages_from_file pacman.txt "sudo apt-get install -y"
     install_packages_from_file flatpak.txt "flatpak install flathub -y"
@@ -89,25 +100,23 @@ elif [ -f /etc/arch-release ]; then
     log "Updating the system..."
     sudo pacman -Syu --noconfirm
 
-    log "Installing Flatpak..."
     install_if_not_installed flatpak flatpak
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-    log "Checking for Yay installation..."
-    if ! command -v yay &> /dev/null; then
-        log "Installing Yay..."
-        git clone https://aur.archlinux.org/yay.git
-        cd yay
-        makepkg -si --noconfirm
-        cd ..
-        rm -rf yay
+    # Add Flathub repository
+    if ! flatpak remote-list | grep -q "flathub"; then
+        log "Adding Flathub repository..."
+        if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+            log "Flathub repository added successfully."
+        else
+            log "Failed to add Flathub repository. Check the logs for more details."
+            exit 1
+        fi
     else
-        log "Yay is already installed."
+        log "Flathub repository already added."
     fi
 
     install_packages_from_file pacman.txt "sudo pacman -S --noconfirm"
     install_packages_from_file flatpak.txt "flatpak install -y"
-    install_packages_from_file yay.txt "yay -S --noconfirm"
 fi
 
 # Copy wallpapers to user's Pictures directory
