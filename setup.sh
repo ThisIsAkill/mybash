@@ -81,7 +81,10 @@ if [ -f /etc/debian_version ]; then
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
     install_packages_from_file pacman.txt "sudo apt-get install -y"
-    install_packages_from_file flatpak.txt "flatpak install flathub -y"
+
+    log "Enter the packages you want to install using Flatpak (separated by spaces):"
+    read -r flatpak_packages
+    flatpak install flathub $flatpak_packages
 
 elif [ -f /etc/arch-release ]; then
     log "Detected Arch-based distribution."
@@ -124,10 +127,6 @@ chmod +x "$HOME/.scripts/"*
 # Detect Desktop Environment
 log "Detecting Desktop Environment..."
 DESKTOP_ENV=$(echo "$XDG_CURRENT_DESKTOP" | tr '[:upper:]' '[:lower:]')
-AUTOSTART_SCRIPT="$HOME/.config/autostart-scripts.sh"
-
-# Set keybindings based on Desktop Environment
-if [ "$DESKTOP_ENV" = "gnome" ]; then
     log "Setting keybindings for GNOME..."
     gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings/custom0/ name "'Custom Shortcut'"
     gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings/custom0/ command "'$HOME/.scripts/newlook.sh'"
