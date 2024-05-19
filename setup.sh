@@ -92,6 +92,10 @@ fi
 log "Installing flathub..."
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
+# Run flatpak.sh
+log "Running flatpak.sh..."
+./flatpak.sh
+
 # Copy wallpapers to user's Pictures directory
 log "Copying wallpapers..."
 cp -r Wallpapers "$HOME/Pictures/"
