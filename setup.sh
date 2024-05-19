@@ -76,23 +76,7 @@ if [ -f /etc/debian_version ]; then
     log "Updating the system..."
     sudo apt-get update && sudo apt-get upgrade -y
 
-    install_if_not_installed flatpak flatpak
-
-    # Add Flathub repository
-    if ! flatpak remote-list | grep -q "flathub"; then
-        log "Adding Flathub repository..."
-        if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-            log "Flathub repository added successfully."
-        else
-            log "Failed to add Flathub repository. Check the logs for more details."
-            exit 1
-        fi
-    else
-        log "Flathub repository already added."
-    fi
-
     install_packages_from_file pacman.txt "sudo apt-get install -y"
-    install_packages_from_file flatpak.txt "flatpak install flathub -y"
 
 elif [ -f /etc/arch-release ]; then
     log "Detected Arch-based distribution."
@@ -100,24 +84,13 @@ elif [ -f /etc/arch-release ]; then
     log "Updating the system..."
     sudo pacman -Syu --noconfirm
 
-    install_if_not_installed flatpak flatpak
-
-    # Add Flathub repository
-    if ! flatpak remote-list | grep -q "flathub"; then
-        log "Adding Flathub repository..."
-        if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-            log "Flathub repository added successfully."
-        else
-            log "Failed to add Flathub repository. Check the logs for more details."
-            exit 1
-        fi
-    else
-        log "Flathub repository already added."
-    fi
-
     install_packages_from_file pacman.txt "sudo pacman -S --noconfirm"
-    install_packages_from_file flatpak.txt "flatpak install -y"
+
 fi
+
+# Install flathub
+log "Installing flathub..."
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # Copy wallpapers to user's Pictures directory
 log "Copying wallpapers..."
