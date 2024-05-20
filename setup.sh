@@ -86,24 +86,35 @@ elif [ -f /etc/arch-release ]; then
 
     install_packages_from_file pacman.txt "sudo pacman -S --noconfirm"
 
+else
+    log "Unsupported Linux distribution."
+    exit 1
 fi
 
-# Install flathub
-log "Installing flathub..."
+# Install flatpak
+log "Installing flatpak..."
+install_if_not_installed flatpak flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# Run flatpak.sh
-log "Running flatpak.sh..."
-./flatpak.sh
+# Run flatpak.sh if it exists
+if [ -f ./flatpak.sh ]; then
+    log "Running flatpak.sh..."
+    ./flatpak.sh
+else
+    log "flatpak.sh not found."
+fi
 
 # Copy wallpapers to user's Pictures directory
 log "Copying wallpapers..."
-cp -r Wallpapers "$HOME/Pictures/"
+if [ -d Wallpapers ]; then
+    cp -r Wallpapers "$HOME/Pictures/"
+else
+    log "Wallpapers directory not found."
+fi
 
 # Set up scripts directory
 log "Setting up scripts directory..."
 mkdir -p "$HOME/.scripts"
-chmod +x "$HOME/.scripts"
 cp scripts/* "$HOME/.scripts/"
 chmod +x "$HOME/.scripts/"*
 
@@ -130,6 +141,8 @@ elif [ "$DESKTOP_ENV" = "kde" ]; then
     else
         echo '"gnome-control-center"' >> ~/.xbindkeysrc
     fi
+else
+    log "Unsupported Desktop Environment."
 fi
 
 # Install Zsh and set as default shell
@@ -197,11 +210,18 @@ EOF
 
 log "Installation complete. Please restart your terminal or run 'source ~/.zshrc' to start using Zsh with your new configuration."
 
+# Add newlook.sh script to run at boot
+echo "@reboot bash $HOME/.scripts/newlook.sh" | crontab -
+
 # Install fonts
 log "Installing fonts..."
-find "$(dirname "$0")/Fonts" -type f -name "*.ttf" -exec cp {} ~/.local/share/fonts/ \;
-fc-cache -f -v
-log "Fonts installation complete."
+if [ -d "$(dirname "$0")/Fonts" ]; then
+    find "$(dirname "$0")/Fonts" -type f -name "*.ttf" -exec cp {} ~/.local/share/fonts/ \;
+    fc-cache -f -v
+    log "Fonts installation complete."
+else
+    log "Fonts directory not found."
+fi
 
 # Create Alacritty configuration
 log "Creating Alacritty configuration..."

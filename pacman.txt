@@ -2,7 +2,7 @@ alacritty
 btop
 docker
 filezilla
-flathub
+flatpak
 python-pillow
 python-pip
 python-pipx
@@ -23,11 +23,7 @@ zsh-syntax-highlighting
 zsh-autosuggestions
 lutris
 steam
-rpcs3 chiaki
-duckstation
-motrix
 openvpn
-cheatengine
 protonhax
 trash-cli
-nvim
+neovim
