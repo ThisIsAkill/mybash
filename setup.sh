@@ -205,6 +205,7 @@ alias gs='git status'
 alias gp='git pull'
 alias ga='git add'
 alias hb='source ~/.scripts/hastebin.sh'
+alias cat=bat
 
 EOF
 

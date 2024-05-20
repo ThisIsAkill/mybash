@@ -1,52 +1,74 @@
 #!/bin/bash
 
-# Define the list of hard drive names
-hard_drives="Jormungdor Slepnir Fenrir"
+# Check if the script is run as root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
 
-# Loop through each hard drive
-for drive in $hard_drives
-do
-    # Get the partition of the drive (assuming a single partition per drive)
-    partition=$(lsblk -ln -o NAME | grep "^$drive" | head -n 1)
-    
-    if [ -z "$partition" ]; then
-        echo "No partition found for $drive"
-        continue
-    fi
+# Function to display usage
+usage() {
+    echo "Usage: $0 /dev/sdXn"
+    exit 1
+}
 
-    # Get UUID of the partition
-    uuid=$(blkid -s UUID -o value /dev/$partition)
+# Check if the device is provided as an argument
+if [ -z "$1" ]; then
+    usage
+fi
 
-    # Detect partition type
-    drive_type=$(blkid -s TYPE -o value /dev/$partition)
+DEVICE=$1
 
-    # Check if UUID and drive type are detected
-    if [ -z "$uuid" ] || [ -z "$drive_type" ]; then
-        echo "Failed to get UUID or drive type for /dev/$partition"
-        continue
-    fi
+# Check if the device exists
+if [ ! -b "$DEVICE" ]; then
+    echo "Device $DEVICE does not exist."
+    exit 1
+fi
 
-    # Create directory in /mnt with drive name
-    sudo mkdir -p /mnt/$drive
+# Get the UUID of the device
+UUID=$(blkid -s UUID -o value $DEVICE)
+if [ -z "$UUID" ]; then
+    echo "Failed to get UUID for $DEVICE."
+    exit 1
+fi
 
-    # Check if ntfs-3g is needed
-    if [ "$drive_type" = "ntfs" ]; then
-        # Check if ntfs-3g is installed
-        if ! command -v ntfs-3g &> /dev/null; then
-            # Install ntfs-3g
-            sudo apt-get install ntfs-3g -y
-        fi
+# Determine the file system type
+FSTYPE=$(blkid -s TYPE -o value $DEVICE)
+if [ -z "$FSTYPE" ]; then
+    echo "Failed to get file system type for $DEVICE."
+    exit 1
+fi
 
-        # Mount ntfs partition using ntfs-3g
-        sudo mount -t ntfs-3g UUID=$uuid /mnt/$drive
+# Create the mount point directory
+MOUNT_POINT="/mnt/$(basename $DEVICE)"
+mkdir -p $MOUNT_POINT
 
-        # Update fstab entry for automatic mounting
-        echo "UUID=$uuid /mnt/$drive ntfs-3g defaults 0 0" | sudo tee -a /etc/fstab
-    else
-        # Mount partition using detected type
-        sudo mount UUID=$uuid /mnt/$drive
+# Set the ownership and permissions for the mount point
+# Assuming the current user should have ownership and permissions
+CURRENT_USER=$(logname)
+chown $CURRENT_USER:$CURRENT_USER $MOUNT_POINT
+chmod 755 $MOUNT_POINT
 
-        # Update fstab entry for automatic mounting
-        echo "UUID=$uuid /mnt/$drive $drive_type defaults 0 0" | sudo tee -a /etc/fstab
-    fi
-done
+# Backup /etc/fstab
+cp /etc/fstab /etc/fstab.bak
+
+# Add the new entry to /etc/fstab if it doesn't already exist
+if ! grep -q "UUID=$UUID" /etc/fstab; then
+    echo "UUID=$UUID  $MOUNT_POINT  $FSTYPE  defaults  0  2" >> /etc/fstab
+else
+    echo "Entry for $DEVICE already exists in /etc/fstab."
+fi
+
+# Mount all file systems in /etc/fstab
+mount -a
+
+# Verify the mount was successful
+if mount | grep $MOUNT_POINT > /dev/null; then
+    echo "Drive $DEVICE mounted successfully at $MOUNT_POINT."
+else
+    echo "Failed to mount $DEVICE. Restoring original /etc/fstab."
+    mv /etc/fstab.bak /etc/fstab
+    exit 1
+fi
+
+echo "Script completed successfully."
