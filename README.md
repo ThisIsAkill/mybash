@@ -17,8 +17,8 @@ This repository contains a comprehensive setup script designed to automate the c
 
 1. **Clone the repository**:
    ```sh
-   git clone https://github.com/yourusername/linux-setup-script.git
-   cd linux-setup-script
+   git clone https://github.com/ThisIsAkill/mybash.git
+   cd mybash
    ```
 
 2. **Make the setup script executable**:
