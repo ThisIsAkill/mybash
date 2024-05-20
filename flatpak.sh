@@ -1,11 +1,11 @@
 # Install RPCS3 using flatpak
-flatpak install flathub org.rpcs3.RPCS3
+flatpak install flathub net.rpcs3.RPCS3
 
 # Install Duckstation using flatpak
-flatpak install flathub io.duckstation.DuckStation
+flatpak install flathub org.duckstation.DuckStation
 
 # Install Motrix using flatpak
-flatpak install flathub net.agateau.Motrix
+flatpak install flathub net.agalwood.Motrix
 
 # Install Plex Desktop using flatpak
-flatpak install flathub com.plex.PlexMediaPlayer
+flatpak install flathub tv.plex.PlexDesktop
