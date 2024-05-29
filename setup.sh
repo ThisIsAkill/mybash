@@ -47,6 +47,10 @@ install_if_not_installed() {
             sudo apt-get install -y "$package"
         elif [ -f /etc/arch-release ]; then
             sudo pacman -S --noconfirm "$package"
+        elif [ -f /etc/fedora-release ]; then
+            sudo dnf install -y "$package"
+        elif [ -f /etc/SuSE-release ]; then
+            sudo zypper install -y "$package"
         else
             log "Unsupported distribution for $package installation."
         fi
@@ -85,6 +89,22 @@ elif [ -f /etc/arch-release ]; then
     sudo pacman -Syu --noconfirm
 
     install_packages_from_file pacman.txt "sudo pacman -S --noconfirm"
+
+elif [ -f /etc/fedora-release ]; then
+    log "Detected Fedora-based distribution."
+
+    log "Updating the system..."
+    sudo dnf update -y
+
+    install_packages_from_file pacman.txt "sudo dnf install -y"
+
+elif [ -f /etc/SuSE-release ]; then
+    log "Detected openSUSE-based distribution."
+
+    log "Updating the system..."
+    sudo zypper update -y
+
+    install_packages_from_file pacman.txt "sudo zypper install -y"
 
 else
     log "Unsupported Linux distribution."
@@ -260,3 +280,4 @@ log "Starting xbindkeys..."
 xbindkeys
 
 log "Setup script completed."
+
