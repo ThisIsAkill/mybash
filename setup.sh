@@ -175,41 +175,9 @@ install_zsh_plugin zsh-completions
 log "Configuring Zsh..."
 cp pk10k.zsh "$HOME/.pk10k.zsh"
 
-# Append Zsh configuration to .zshrc
-cat >> ~/.zshrc << 'EOF'
+# Overwrite .zshrc in the home directory
+cp -f .zshrc ~/.zshrc
 
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(hostname).zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$(hostname).zsh"
-fi
-
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git sudo zsh-autosuggestions zsh-syntax-highlighting zsh-completions)
-source $ZSH/oh-my-zsh.sh
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export PATH="$HOME/.scripts:$PATH"
-fcd() {
-  local dir
-  dir=$(find ${1:-.} -type d -not -path '*/\.*' 2> /dev/null | fzf +m) && cd "$dir"
-}
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-alias cls='clear'
-alias vim=nvim
-alias ..="cd .."
-alias ~='cd ~'
-alias Desktop='cd ~/Desktop'
-alias install='sudo pacman -S'
-alias update='sudo pacman -Syu'
-alias pkgf='sudo pacman -Ss'
-alias gs='git status'
-alias gp='git pull'
-alias ga='git add'
-alias hb='source ~/.scripts/hastebin.sh'
-alias cat=bat
-
-EOF
-
-log "Installation complete. Please restart your terminal or run 'source ~/.zshrc' to start using Zsh with your new configuration."
 
 # Add newlook.sh script to run at boot
 echo "@reboot bash $HOME/.scripts/newlook.sh" | crontab -
