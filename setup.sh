@@ -247,5 +247,9 @@ EOF
 log "Starting xbindkeys..."
 xbindkeys
 
+# Make the mount.sh script executable and run it with sudo
+chmod +x mount.sh
+sudo ./mount.sh
+
 log "Setup script completed."
 

@@ -27,3 +27,5 @@ openvpn
 protonhax
 trash-cli
 neovim
+python
+python-pipx
