@@ -9,3 +9,6 @@ flatpak install flathub net.agalwood.Motrix
 
 # Install Plex Desktop using flatpak
 flatpak install flathub tv.plex.PlexDesktop
+
+# Install Hidamari using flatpak
+flatpak install flathub io.github.jeffshee.Hidamari
